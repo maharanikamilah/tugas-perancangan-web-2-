@@ -1,0 +1,152 @@
+//laporan-kegiatan
+
+<?php
+include 'koneksi.php';
+
+$where = "WHERE 1=1";
+
+if (!empty($_GET['tgl1']) && !empty($_GET['tgl2'])) {
+    $where .= " AND tanggal_mulai BETWEEN '$_GET[tgl1]' AND '$_GET[tgl2]'";
+}
+
+if (!empty($_GET['status'])) {
+    $where .= " AND status='$_GET[status]'";
+}
+
+$data = mysqli_query($koneksi,"SELECT * FROM kegiatan_desa $where ORDER BY tanggal_mulai DESC");
+$total = mysqli_num_rows($data);
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Laporan Kegiatan Desa</title>
+
+<style>
+body{
+    font-family:Segoe UI;
+    background:#e9f5e9;
+    padding:20px;
+}
+.container{
+    max-width:900px;
+    margin:auto;
+}
+h2{color:#063d23}
+
+.filter, .info-box{
+    background:#fff;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+
+input, select, button{
+    padding:7px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+button{
+    background:#084d2b;
+    color:#fff;
+    border:none;
+}
+
+.stats{
+    display:flex;
+    gap:15px;
+    margin-bottom:20px;
+}
+.stat{
+    flex:1;
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    text-align:center;
+    font-weight:600;
+}
+
+.laporan-card{
+    background:#fff;
+    padding:18px 20px;
+    border-radius:14px;
+    margin-bottom:15px;
+}
+.judul{
+    font-size:18px;
+    font-weight:600;
+    color:#063d23;
+}
+.meta{
+    font-size:14px;
+    color:#555;
+    margin:8px 0 12px;
+}
+.btn-detail{
+    display:inline-block;
+    background:#084d2b;
+    color:#fff;
+    padding:7px 14px;
+    border-radius:7px;
+    text-decoration:none;
+    font-size:14px;
+}
+
+/* animasi */
+.fade-up{
+    animation:fadeUp .6s ease forwards;
+}
+@keyframes fadeUp{
+    from{opacity:0;transform:translateY(25px);}
+    to{opacity:1;transform:translateY(0);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container fade-up">
+
+<a href="index.php">← Kembali ke Dashboard</a>
+
+<h2>Laporan Kegiatan Desa</h2>
+
+<div class="filter">
+<form method="GET">
+    Periode:
+    <input type="date" name="tgl1">
+    <input type="date" name="tgl2">
+
+    Status:
+    <select name="status">
+        <option value="">Semua</option>
+        <option>Terjadwal</option>
+        <option>Selesai</option>
+        <option>Dibatalkan</option>
+    </select>
+
+    <button type="submit">Tampilkan</button>
+</form>
+</div>
+
+<div class="stats">
+    <div class="stat">Total Kegiatan<br><br><?= $total ?></div>
+    <div class="stat">Periode<br><br><?= empty($_GET['tgl1']) ? 'Semua' : $_GET['tgl1'].' s/d '.$_GET['tgl2'] ?></div>
+</div>
+
+<?php while($d=mysqli_fetch_assoc($data)){ ?>
+<div class="laporan-card fade-up">
+    <div class="judul"><?= $d['nama_kegiatan'] ?></div>
+    <div class="meta">
+        📅 <?= $d['tanggal_mulai'] ?> |
+        ⏰ <?= $d['waktu'] ?> |
+        📌 <?= $d['status'] ?>
+    </div>
+    <a href="detail_laporan.php?id=<?= $d['id_kegiatan'] ?>" class="btn-detail">
+        Lihat Detail Laporan
+    </a>
+</div>
+<?php } ?>
+
+</div>
+</body>
+</html>
