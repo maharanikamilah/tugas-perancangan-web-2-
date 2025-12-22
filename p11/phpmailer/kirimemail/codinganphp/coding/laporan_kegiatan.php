@@ -1,4 +1,3 @@
-//tabel laporan kegiatan
 <?php
 include 'koneksi.php';
 
