@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Admin Desa</title>
+
+<style>
+body{margin:0;font-family:Inter;background:#eef2f7}
+.wrapper{padding:30px}
+h2{color:#0d2b63}
+.grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    margin-bottom:30px
+}
+.card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 8px 20px rgba(0,0,0,.1)
+}
+table{width:100%;border-collapse:collapse}
+th,td{padding:12px;border-bottom:1px solid #ddd}
+button{
+    background:#0d2b63;
+    color:white;
+    border:none;
+    padding:6px 14px;
+    border-radius:20px;
+    cursor:pointer
+}
+</style>
+</head>
+
+<body>
+<div class="wrapper">
+
+<h2>Dashboard Admin Desa</h2>
+
+<div class="grid">
+    <div class="card">Total Kegiatan<br><b id="total">0</b></div>
+    <div class="card">Menunggu ACC<br><b id="menunggu">0</b></div>
+    <div class="card">Laporan Masuk<br><b id="laporan">0</b></div>
+    <div class="card">Pengumuman Aktif<br><b id="pengumuman">0</b></div>
+</div>
+
+<div class="card">
+<h3>Menunggu Persetujuan Kepala Desa</h3>
+<table>
+<thead>
+<tr>
+<th>Kegiatan</th>
+<th>Tanggal</th>
+<th>Lokasi</th>
+<th>Aksi</th>
+</tr>
+</thead>
+<tbody id="list">
+<tr><td colspan="4" align="center">Memuat data...</td></tr>
+</tbody>
+</table>
+</div>
+
+</div>
+
+<script>
+fetch("api_dashboard.php")
+.then(r=>r.json())
+.then(res=>{
+    document.getElementById("total").innerText = res.statistik.total_kegiatan;
+    document.getElementById("menunggu").innerText = res.statistik.menunggu_acc;
+    document.getElementById("laporan").innerText = res.statistik.laporan;
+    document.getElementById("pengumuman").innerText = res.statistik.pengumuman;
+
+    let html="";
+    if(res.list_acc.length==0){
+        html=`<tr><td colspan="4" align="center">Tidak ada data</td></tr>`;
+    }else{
+        res.list_acc.forEach(d=>{
+            html+=`
+            <tr>
+                <td>${d.nama_kegiatan}</td>
+                <td>${d.tanggal}</td>
+                <td>${d.lokasi}</td>
+                <td><button onclick="acc(${d.id_kegiatan})">ACC</button></td>
+            </tr>`;
+        });
+    }
+    document.getElementById("list").innerHTML=html;
+});
+
+function acc(id){
+    let fd=new FormData();
+    fd.append("id_kegiatan",id);
+    fetch("acc_kegiatan.php",{method:"POST",body:fd})
+    .then(r=>r.json())
+    .then(res=>{
+        alert(res.message);
+        location.reload();
+    });
+}
+</script>
+
+</body>
+</html>
